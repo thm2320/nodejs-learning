@@ -11,6 +11,7 @@ const shopRoutes = require('./routes/shop');
 app.get('/favicon.ico', (req, res) => res.status(204));
 
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(express.static(path.join(__dirname, 'public'))); // set folder 'public' no permission needed, all routes will be forward to this folder if not handled by express routers
 
 //the order here will affecting the route behavior if the routes are using "router.use" method
 app.use('/admin',adminRoutes); // filter the route, all url start with '/admin' with go this router
