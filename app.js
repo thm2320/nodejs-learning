@@ -3,24 +3,15 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+
 app.get('/favicon.ico', (req, res) => res.status(204));
 
 app.use(bodyParser.urlencoded({extended:false}));
 
-app.use('/add-product', (req, res, next) => {
-  res.send('<form action="/product" method="POST"><input type="text" name="title"><button type="submit">Add Product</button></form>')
-});
-
-app.post('/product', (req, res) => {
-  console.log(req.body);
-  res.redirect('/');
-})
-
-app.use('/', (req, res, next) => {
-  res.send('<h1>Hello</h1>')
-});
-
-
-
+//the order here will affecting the route behavior if the routes are using "router.use" method
+app.use(adminRoutes);
+app.use(shopRoutes);
 
 app.listen(3000);
