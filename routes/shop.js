@@ -1,3 +1,5 @@
+const path = require('path');
+
 const express = require('express');
 
 const router = express.Router();
@@ -8,7 +10,7 @@ const router = express.Router();
 "use" will match the url start with '/'
 */
 router.get('/', (req, res, next) => {
-  res.send('<h1>Hello</h1>')
+  res.sendFile(path.join(__dirname, '../', 'views', 'shop.html'));
 });
 
 
