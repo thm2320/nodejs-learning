@@ -2,6 +2,8 @@ const path = require('path');
 
 const express = require('express');
 
+const rootDir = require('../util/path');
+
 const router = express.Router();
 
 
@@ -10,7 +12,7 @@ const router = express.Router();
 "use" will match the url start with '/'
 */
 router.get('/', (req, res, next) => {
-  res.sendFile(path.join(__dirname, '..', 'views', 'shop.html'));
+  res.sendFile(path.join(rootDir, 'views', 'shop.html'));
 });
 
 
