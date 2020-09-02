@@ -6,20 +6,6 @@ const expressHbs = require('express-handlebars');
 
 const app = express();
 
-//pug template engine
-// app.set('view engine', 'pug'); // tell express to use 'pug' as 'view engine'
-// app.set('views', 'views'); // set the directory of the views as 'view'
-
-//handlebars (hbs) template engine
-// app.engine('hbs', expressHbs({
-//     layoutsDir: 'views/layouts/', 
-//     defaultLayout: 'main-layout',
-//     extname: 'hbs'
-// }));
-// app.set('view engine', 'hbs');
-// app.set('views', 'views');
-
-
 //ejs template engine
 app.set('view engine', 'ejs');
 app.set('views', 'views');
