@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { chdir } = require('process');
 
 const p = path.join(
   path.dirname(process.mainModule.filename),
@@ -9,9 +10,9 @@ const p = path.join(
 
 module.exports = class Cart {
   static addProduct(id, productPrice) {
-    console.log("cart.js addProduct")
+   /*  console.log("cart.js addProduct")
     console.log(id)
-    console.log(productPrice)
+    console.log(productPrice) */
 
     // Fetch the previous cart
     fs.readFile(p , (err, fileContent) => {
@@ -65,5 +66,16 @@ module.exports = class Cart {
         console.log(err);
       })
     });  
+  }
+
+  static getCart(cb) {
+    fs.readFile(p , (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err){
+        cb(null);
+      } else{
+        cb(cart);
+      }
+    });
   }
 };
