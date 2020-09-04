@@ -1,4 +1,2 @@
 node_modules
-data/products.json
-data/cart.json
-*.json
+data
