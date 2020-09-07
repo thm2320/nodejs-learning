@@ -6,13 +6,13 @@ const bodyParser = require('body-parser');
 const app = express();
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database');
+const { mongoConnect } = require('./util/database');
 
 //ejs template engine
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-// const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
 
 app.get('/favicon.ico', (req, res) => res.status(204));
@@ -27,15 +27,15 @@ app.use((req, res, next) => {
   //     next();
   //   })
   //   .catch(err => console.log(err));
+  next();
 });
 
-// app.use('/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect((client) => {
-  console.log(client)
+mongoConnect(() => {
   app.listen(3000);
 });
 
