@@ -2,11 +2,11 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 
 const errorController = require('./controllers/error');
-const { mongoConnect } = require('./util/database');
 const User = require('./models/user');
 
 //ejs template engine
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
   User.findById("5f56f72d78f267e71304ee6d")
     .then(user => {
-      const {name, email, cart, _id} = user;
+      const { name, email, cart, _id } = user;
       req.user = new User(name, email, cart, _id);
       next();
     })
@@ -36,8 +36,10 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
-
+mongoose
+  .connect('mongodb+srv://admin:mymongopw@cluster0.ixc3f.mongodb.net/shop?retryWrites=true&w=majority')
+  .then(result => {
+    app.listen(3000);
+  })
+  .catch(err => console.log(err));
 
