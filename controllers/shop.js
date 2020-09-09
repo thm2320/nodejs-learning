@@ -45,7 +45,7 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
-    .execPopulate()
+    .execPopulate() // for populate from a document, it is to return a promise, not required for .find
     .then(user => {
       const products = user.cart.items
       res.render('shop/cart', {
