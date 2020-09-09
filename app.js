@@ -21,15 +21,14 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use((req, res, next) => {
-//   User.findById("5f56f72d78f267e71304ee6d")
-//     .then(user => {
-//       const { name, email, cart, _id } = user;
-//       req.user = new User(name, email, cart, _id);
-//       next();
-//     })
-//     .catch(err => console.log(err));
-// });
+app.use((req, res, next) => {
+  User.findById("5f5839ded767a01ea867574d")
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
@@ -39,6 +38,18 @@ app.use(errorController.get404);
 mongoose
   .connect('mongodb+srv://admin:mymongopw@cluster0.ixc3f.mongodb.net/shop?retryWrites=true&w=majority')
   .then(result => {
+    User.findOne().then(user => {
+      if (!user){
+        const user = new User({
+          name: 'Admin',
+          email: 'admin@admin.com',
+          cart: {
+            items: []
+          }
+        })
+        user.save()
+      }
+    })
     app.listen(3000);
   })
   .catch(err => console.log(err));
