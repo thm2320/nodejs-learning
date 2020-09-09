@@ -15,7 +15,8 @@ exports.postAddProduct = (req, res, next) => {
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl
+    imageUrl: imageUrl,
+    userId: req.user
   });
   product
     .save()
@@ -73,7 +74,10 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    //.select('title price -_id') // include/exclude the fields in the selection
+    //.populate('userId') // populate the document details of the field instead of only id
     .then((products) => {
+      console.log(products)
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
