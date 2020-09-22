@@ -2,6 +2,7 @@ const crypto = require('crypto');
 
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 
@@ -67,6 +68,17 @@ exports.postLogin = (req, res, next) => {
 
 exports.postSignup = (req, res, next) => {
   const { email, password, confirmPassword } = req.body;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array())
+    return res.status(422).render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: errors.array()[0].msg
+    });
+  }
+
   User.findOne({ email: email })
     .then(userDoc => {
       if (userDoc) {
@@ -191,7 +203,7 @@ exports.postNewPassword = (req, res, next) => {
       resetUser.resetTokenExpiration = null;
       return resetUser.save();
     })
-    .then( result => {
+    .then(result => {
       res.redirect('/login');
     })
     .catch(err => {
