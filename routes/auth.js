@@ -2,6 +2,7 @@ const express = require('express');
 const { check, body } = require('express-validator/check');
 
 const authController = require('../controllers/auth');
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -18,12 +19,18 @@ router.post(
       .isEmail()
       .withMessage('Please enter valid email')
       .custom((value, { req }) => {
-        if (value === 'test@test.com') {
+        /* if (value === 'test@test.com') {
           //throw error to custom the error message
           throw new Error('This email address is forbidden.');
           //or return false to indicate invalid
         }
-        return true;
+        return true; */
+        return User.findOne({ email: value })
+          .then(userDoc => {
+            if (userDoc) {
+              return Promise.reject('E-Mail already exists!');
+            }
+          });
       }),
     body('password', 'Please enter a password with only numbers and text and at least 5 characters.')
       .isLength({ min: 5 })
@@ -31,7 +38,7 @@ router.post(
     body('confirmPassword')
       .custom((value, { req }) => {
         if (value !== req.body.password) {
-          return false; 
+          return false;
         }
         return true
       })

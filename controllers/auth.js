@@ -67,7 +67,7 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password } = req.body;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -79,31 +79,25 @@ exports.postSignup = (req, res, next) => {
     });
   }
 
-  User.findOne({ email: email })
-    .then(userDoc => {
-      if (userDoc) {
-        req.flash('error', 'E-Mail already exists!');
-        return res.redirect('/signup');
-      }
-      return bcrypt
-        .hash(password, 12)
-        .then(hashedPassword => {
-          const user = new User({
-            email: email,
-            password: hashedPassword,
-            cart: { items: [] }
-          })
-          return user.save();
-        })
-        .then(result => {
-          transporter.sendMail({
-            to: email,
-            from: 'shop@nodecomplete.com',
-            subject: 'Sign up succeeded!',
-            html: '<h1>You signed up!</h1>'
-          });
-          res.redirect('/login');
-        });
+
+  bcrypt
+    .hash(password, 12)
+    .then(hashedPassword => {
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] }
+      })
+      return user.save();
+    })
+    .then(result => {
+      res.redirect('/login');
+      transporter.sendMail({
+        to: email,
+        from: 'shop@nodecomplete.com',
+        subject: 'Sign up succeeded!',
+        html: '<h1>You signed up!</h1>'
+      });
     })
     .catch(err => {
       console.log(err)
