@@ -26,11 +26,11 @@ router.post(
 );
 
 router.post(
-  "/signup",
+  '/signup',
   [
-    check("email")
+    check('email')
       .isEmail()
-      .withMessage("Please enter valid email")
+      .withMessage('Please enter valid email')
       .custom((value, { req }) => {
         /* if (value === 'test@test.com') {
           //throw error to custom the error message
@@ -38,29 +38,27 @@ router.post(
           //or return false to indicate invalid
         }
         return true; */
-        return User.findOne({ email: value }).then((userDoc) => {
-          if (userDoc) {
-            return Promise.reject("E-Mail already exists!");
-          }
-        });
+        return User.findOne({ email: value })
+          .then(userDoc => {
+            if (userDoc) {
+              return Promise.reject('E-Mail already exists!');
+            }
+          });
       })
       .normalizeEmail(),
-    body(
-      "password",
-      "Please enter a password with only numbers and text and at least 4 characters."
-    )
+    body('password', 'Please enter a password with only numbers and text and at least 4 characters.')
       .isLength({ min: 4 })
       .isAlphanumeric()
       .trim(),
-    body("confirmPassword")
-      .trim()
+    body('confirmPassword')
+    .trim()
       .custom((value, { req }) => {
         if (value !== req.body.password) {
           return false;
         }
-        return true;
+        return true
       })
-      .withMessage("Passwords have to match")
+      .withMessage('Passwords have to match')
   ],
   authController.postSignup
 );
