@@ -15,10 +15,12 @@ router.post(
   [
     body('email')
       .isEmail()
-      .withMessage('Please enter a valid email address.'),
+      .withMessage('Please enter a valid email address.')
+      .normalizeEmail(),
     body('password', 'Password has to be valid.')
       .isLength({ min: 4 })
       .isAlphanumeric()
+      .trim()
   ],
   authController.postLogin
 );
@@ -42,11 +44,14 @@ router.post(
               return Promise.reject('E-Mail already exists!');
             }
           });
-      }),
+      })
+      .normalizeEmail(),
     body('password', 'Please enter a password with only numbers and text and at least 4 characters.')
       .isLength({ min: 4 })
-      .isAlphanumeric(),
+      .isAlphanumeric()
+      .trim(),
     body('confirmPassword')
+    .trim()
       .custom((value, { req }) => {
         if (value !== req.body.password) {
           return false;
