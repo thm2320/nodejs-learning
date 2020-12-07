@@ -1,3 +1,5 @@
+// const Mongoose = require('mongoose')
+
 const { validationResult } = require('express-validator/check');
 
 const Product = require('../models/product');
@@ -36,6 +38,7 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   const product = new Product({
+    // _id: Mongoose.Types.ObjectId('5f687857378c743560283c44'),
     title: title,
     price: price,
     description: description,
@@ -49,7 +52,7 @@ exports.postAddProduct = (req, res, next) => {
       console.log("Created Product");
       res.redirect("/admin/products");
     })
-    .catch((err) => {
+    .catch(err => {
       // return res.status(500).render("admin/edit-product", {
       //   pageTitle: "Add Product",
       //   path: "/admin/add-product",
@@ -77,6 +80,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
+  // throw new Error('dummy')
   Product.findById(prodId)
     .then(product => {
       if (!product) {
@@ -92,7 +96,11 @@ exports.getEditProduct = (req, res, next) => {
         validationErrors: []
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatisCode = 500
+      return next(error)
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -137,7 +145,11 @@ exports.postEditProduct = (req, res, next) => {
         })
 
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatisCode = 500
+      return next(error)
+    });
 
 
 };
@@ -153,19 +165,24 @@ exports.getProducts = (req, res, next) => {
         pageTitle: 'Admin Products',
         path: '/admin/products'
       });
-    }).catch(err => {
-      console.log(err)
     })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatisCode = 500
+      return next(error)
+    });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteOne({_id: prodId, userId: req.user._id})
+  Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then(() => {
       console.log('destroy product')
       res.redirect('/admin/products');
     })
     .catch(err => {
-      console.log(err)
+      const error = new Error(err);
+      error.httpStatisCode = 500
+      return next(error)
     });
 }
