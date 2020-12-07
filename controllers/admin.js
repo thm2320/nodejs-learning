@@ -64,7 +64,10 @@ exports.postAddProduct = (req, res, next) => {
       //   errorMessage: 'Data operation failed, please try again',
       //   validationErrors: []
       // });
-      res.redirect('/500')
+      // res.redirect('/500')
+      const error = new Error(err);
+      error.httpStatisCode = 500
+      return next(error)
     });
 };
 
