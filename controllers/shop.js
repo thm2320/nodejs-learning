@@ -162,9 +162,10 @@ exports.getInvoice = (req, res, next) => {
       if (order.user.userId.toString() !== req.user._id.toString()) {
         return next(new Error('Unauthorized'))
       }
-      const invoiceName = `invoice-${orderId}.pdf`;
+      const invoiceName = `invoice-${orderId}.png`;
       const invoicePath = path.join('data', 'invoices', invoiceName);
-      fs.readFile(invoicePath, (err, data) => {
+      // loading whole file data into system memory, not good at downloading
+      /* fs.readFile(invoicePath, (err, data) => {
         console.log(invoicePath)
         if (err) {
           return next(err);
@@ -172,7 +173,14 @@ exports.getInvoice = (req, res, next) => {
         res.setHeader('Content-Type', 'application/pdf'); //the data content type
         res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
         res.send(data)
-      });
+      }); */
+
+      // streaming file data
+      const file = fs.createReadStream(invoicePath);
+      res.setHeader('Content-Type', 'application/pdf'); //the data content type
+      res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
+      file.pipe(res);
+
     })
     .catch(err => next(err))
 
