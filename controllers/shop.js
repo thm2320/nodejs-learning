@@ -153,7 +153,6 @@ exports.getOrders = (req, res, next) => {
 
 
 exports.getInvoice = (req, res, next) => {
-  console.log(1233333333333333)
   const orderId = req.params.orderId;
   const invoiceName = `invoice-${orderId}.pdf`;
   const invoicePath = path.join('data', 'invoices', invoiceName);
@@ -162,6 +161,8 @@ exports.getInvoice = (req, res, next) => {
     if (err) {
       return next(err);
     }
+    res.setHeader('Content-Type', 'application/pdf'); //the data content type
+    res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
     res.send(data)
   });
 }
