@@ -154,15 +154,27 @@ exports.getOrders = (req, res, next) => {
 
 exports.getInvoice = (req, res, next) => {
   const orderId = req.params.orderId;
-  const invoiceName = `invoice-${orderId}.pdf`;
-  const invoicePath = path.join('data', 'invoices', invoiceName);
-  fs.readFile(invoicePath, (err, data) => {
-    console.log(invoicePath)
-    if (err) {
-      return next(err);
-    }
-    res.setHeader('Content-Type', 'application/pdf'); //the data content type
-    res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
-    res.send(data)
-  });
+  Order.findById(orderId)
+    .then(order => {
+      if (!order) {
+        return next(new Error('No order found.'))
+      }
+      if (order.user.userId.toString() !== req.user._id.toString()) {
+        return next(new Error('Unauthorized'))
+      }
+      const invoiceName = `invoice-${orderId}.pdf`;
+      const invoicePath = path.join('data', 'invoices', invoiceName);
+      fs.readFile(invoicePath, (err, data) => {
+        console.log(invoicePath)
+        if (err) {
+          return next(err);
+        }
+        res.setHeader('Content-Type', 'application/pdf'); //the data content type
+        res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
+        res.send(data)
+      });
+    })
+    .catch(err => next(err))
+
+
 }
