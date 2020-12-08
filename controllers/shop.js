@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -147,3 +150,18 @@ exports.getOrders = (req, res, next) => {
       })
     });
 };
+
+
+exports.getInvoice = (req, res, next) => {
+  console.log(1233333333333333)
+  const orderId = req.params.orderId;
+  const invoiceName = `invoice-${orderId}.pdf`;
+  const invoicePath = path.join('data', 'invoices', invoiceName);
+  fs.readFile(invoicePath, (err, data) => {
+    console.log(invoicePath)
+    if (err) {
+      return next(err);
+    }
+    res.send(data)
+  });
+}
