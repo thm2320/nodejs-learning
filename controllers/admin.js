@@ -1,6 +1,7 @@
 // const Mongoose = require('mongoose')
 
 const { validationResult } = require('express-validator/check');
+const product = require('../models/product');
 
 const Product = require('../models/product');
 
@@ -18,7 +19,21 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   const { title, description, price } = req.body;
   const image = req.file;
-  console.log(image)
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title,
+        price,
+        description
+      },
+      errorMessage: 'Attached file is not an image',
+      validationErrors: []
+    });
+  }
   const errors = validationResult(req);
 
   console.log(errors)
@@ -30,7 +45,6 @@ exports.postAddProduct = (req, res, next) => {
       hasError: true,
       product: {
         title,
-        imageUrl,
         price,
         description
       },
@@ -38,6 +52,8 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
+
+  const imageUrl = image.path;
 
   const product = new Product({
     // _id: Mongoose.Types.ObjectId('5f687857378c743560283c44'),
@@ -107,12 +123,15 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res, next) => {
   const {
-    productId, title, imageUrl, description, price
+    productId, title, description, price
   } = req.body;
+
+  const image = req.file;
+
 
   const errors = validationResult(req);
 
-  console.log(errors)
+  console.log("errors", errors)
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product",
@@ -121,7 +140,6 @@ exports.postEditProduct = (req, res, next) => {
       hasError: true,
       product: {
         title,
-        imageUrl,
         price,
         description,
         _id: productId
@@ -133,13 +151,16 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(productId)
     .then(product => {
-      console.log("postEditProduct")
-      console.log(product.userId.toString())
-      console.log(req.user._id)
+      /*  console.log("postEditProduct")
+       console.log(product.userId.toString())
+       console.log(req.user._id) */
       if (product.userId.toString() !== req.user._id.toString()) {
         return res.redirect('/');
       }
-      Object.assign(product, { title, imageUrl, description, price });
+      Object.assign(product, { title, description, price });
+      if (image) {
+        product.imageUrl = image.path;
+      }
       return product.save()
         .then(result => {
           console.log('Updated Product');
