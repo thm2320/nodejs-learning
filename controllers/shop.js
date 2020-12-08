@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -162,8 +164,18 @@ exports.getInvoice = (req, res, next) => {
       if (order.user.userId.toString() !== req.user._id.toString()) {
         return next(new Error('Unauthorized'))
       }
-      const invoiceName = `invoice-${orderId}.png`;
+      const invoiceName = `invoice-${orderId}.pdf`;
       const invoicePath = path.join('data', 'invoices', invoiceName);
+
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf'); //the data content type
+      res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.text('Hello !')
+
+      pdfDoc.end();
       // loading whole file data into system memory, not good at downloading
       /* fs.readFile(invoicePath, (err, data) => {
         console.log(invoicePath)
@@ -176,10 +188,10 @@ exports.getInvoice = (req, res, next) => {
       }); */
 
       // streaming file data
-      const file = fs.createReadStream(invoicePath);
+      /* const file = fs.createReadStream(invoicePath);
       res.setHeader('Content-Type', 'application/pdf'); //the data content type
       res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
-      file.pipe(res);
+      file.pipe(res); */
 
     })
     .catch(err => next(err))
