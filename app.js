@@ -7,6 +7,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const MONGODB_URI = 'mongodb+srv://admin:mymongopw@cluster0.ixc3f.mongodb.net/shop?retryWrites=true&w=majority';
 
@@ -16,6 +17,8 @@ const store = new MongoDBStore({
   collection: 'sessions'
 });
 const csrfProtection = csrf();
+
+
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -32,6 +35,29 @@ const authRoutes = require('./routes/auth');
 app.get('/favicon.ico', (req, res) => res.status(204));
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+const fileStoreage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images")
+  },
+  filename: (req, file, cb) => {
+    const dateStr = new Date().toISOString().replace(/:/g, '-');
+    cb(null, dateStr + '-' + file.originalname);
+  },
+});
+const fileFilter = (req, file, cb) => {
+  const fileRegex = /^image\/(png|jpg|jpeg)$/
+  if (fileRegex.test(file.mimetype)) {
+    cb(null, true)
+  } else {
+
+    cb(null, false)
+  }
+}
+app.use(multer({
+  storage: fileStoreage,
+  fileFilter: fileFilter
+}).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
