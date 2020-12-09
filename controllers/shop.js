@@ -173,7 +173,17 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.pipe(fs.createWriteStream(invoicePath));
       pdfDoc.pipe(res);
 
-      pdfDoc.text('Hello !')
+      pdfDoc.fontSize(26).text('Invoice', {
+        underline: true,
+      })
+      pdfDoc.text('---------------------')
+      let totalPrice = 0;
+      order.products.forEach(prod => {
+        totalPrice += prod.quantity * prod.product.price
+        pdfDoc.fontSize(14).text(`${prod.product.title} - ${prod.quantity} x $${prod.product.price}`)
+      })
+      pdfDoc.text('---------------------')
+      pdfDoc.text(`Total Price: $${totalPrice}`)
 
       pdfDoc.end();
       // loading whole file data into system memory, not good at downloading
@@ -183,14 +193,14 @@ exports.getInvoice = (req, res, next) => {
           return next(err);
         }
         res.setHeader('Content-Type', 'application/pdf'); //the data content type
-        res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
+        res.setHeader('Content-Disposition', `inline; filename = "${invoiceName}"`); //how to serve the client
         res.send(data)
       }); */
 
       // streaming file data
       /* const file = fs.createReadStream(invoicePath);
       res.setHeader('Content-Type', 'application/pdf'); //the data content type
-      res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`); //how to serve the client
+      res.setHeader('Content-Disposition', `inline; filename = "${invoiceName}"`); //how to serve the client
       file.pipe(res); */
 
     })
