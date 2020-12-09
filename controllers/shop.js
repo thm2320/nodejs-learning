@@ -6,7 +6,7 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -43,28 +43,35 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  const page = req.query.page;
+  const page = +req.query.page || 1;
   let totalProducts;
 
   Product.find()
     .countDocuments()
     .then(num => {
-      totalItems = num;
+      totalProducts = num;
       return Product.find()
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE)
     })
     .then(products => {
+
+      const pageInfo = {
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
+        hasPrevPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE)
+      }
+      console.log(pageInfo)
+
       res.render('shop/index', {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
         totalProducts,
-        hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
-        hasPrevPage: page > 1,
-        nextPage: page + 1,
-        prevPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        ...pageInfo
       });
     })
     .catch(err => {
