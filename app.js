@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -10,6 +11,7 @@ const flash = require('connect-flash');
 const multer = require('multer');
 const helmet = require('helmet');
 const compression = require('compression');
+const morgan = require('morgan');
 
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.ixc3f.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
 
@@ -30,12 +32,18 @@ const User = require('./models/user');
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' }
+);
+
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(helmet());
 app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 
