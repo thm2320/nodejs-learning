@@ -4,3 +4,4 @@ images
 access.log
 server.cert
 server.key
+nodemon.json
